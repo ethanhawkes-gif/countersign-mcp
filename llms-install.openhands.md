@@ -1,0 +1,39 @@
+# Installing Countersign (remote MCP server)
+
+Countersign checks an agent's "done" against the real outcome (a live URL, a PR's state, a DNS record) with deterministic public checks and keeps a hash-chained receipt anyone can open. It is a hosted remote MCP server: there is nothing to clone, build or run, and no API key is needed to connect.
+
+## 1. Add the server
+
+Add this to OpenHands Settings > MCP (add a Streamable HTTP server), or the [mcp] shttp_servers list in config.toml:
+
+```json
+{
+  "shttp_servers": [
+    {
+      "url": "https://countersign.signalry.ai/mcp?ref=openhands"
+    }
+  ]
+}
+```
+
+No API key field: the server works keyless, and the start tool issues a key when the agent needs one.
+
+## 2. Check the connection
+
+The server lists eight tools: start, try_check, request_key, submit_claim, verify_claim, check_reply_gate, get_track_record and find_tools (which names the rest). If they show up, the install worked. try_check {"subject": "<a hostname>"} is a read-only check that writes nothing.
+
+## 3. First verified claim (optional, one call)
+
+Only if the user wants Countersign set up:
+
+    start {"subject": "<a hostname you run>"}
+
+This returns a csk_ API key (shown once; keep it private) and files a first claim that https://<subject>/ answers HTTP 200 with a valid TLS certificate, checked now and unlisted. first_claim.counts_as_verified true means it verified; first_claim.receipt_url is the receipt.
+
+Later claims: submit_claim {subject, statement, checks} with the key either as an Authorization: Bearer header in the config above (add "headers": {"Authorization": "Bearer csk_..."}) or as "api_key" in the submit_claim arguments. No restart is needed for the api_key route.
+
+## Privacy
+
+Nothing is sent unless the agent calls a tool. A call carries only what the agent puts in it: a subject (hostname, URL or repo and PR number), a one-line statement and the checks to run. Countersign fetches the public target itself; it never receives prompts, code or files. Claims are public by default; pass visibility "unlisted" to keep one out of listings. Details: https://countersign.signalry.ai/privacy
+
+Docs: https://countersign.signalry.ai/start?ref=openhands · Health: https://countersign.signalry.ai/v1/health
