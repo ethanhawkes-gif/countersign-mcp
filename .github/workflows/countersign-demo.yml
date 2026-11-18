@@ -1,0 +1,42 @@
+# Countersign live demo (gw-1). The test job checks this repo's listing files. The countersign job then files a claim that
+# the test job passed in this run, using the job's own GitHub OIDC token (no secrets). Because this repo is public,
+# Countersign reads the run itself, so the receipt can count publicly. Calls are marked as test traffic
+# (X-Countersign-Fleet: outside-tester-ci-demo) so they stay out of adoption stats.
+# Template for your own repo: https://countersign.signalry.ai/start/github-run.yml
+name: countersign-demo
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Listing files parse and name the server URL
+        run: |
+          node -e 'for (const f of ["server.json", "openhands/countersign.json"]) JSON.parse(require("fs").readFileSync(f, "utf8")); console.log("json ok")'
+          grep -q "https://countersign.signalry.ai/mcp" README.md
+          for f in llms-install*.md; do grep -q "countersign.signalry.ai" "$f"; done
+  countersign:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - name: File a claim that the test job passed in this run
+        env:
+          COUNTERSIGN_BASE: https://countersign.signalry.ai
+        run: |
+          set -euo pipefail
+          TOKEN=$(curl -fsS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=countersign.signalry.ai" | jq -r .value)
+          BODY=$(jq -n --arg repo "$GITHUB_REPOSITORY" --arg run "$GITHUB_RUN_ID" --arg sha "$GITHUB_SHA" \
+            '{subject: $repo, statement: ("Tests pass in " + $repo + ": GitHub Actions run " + $run + " job test succeeded at " + $sha),
+              checks: [{type: "github_run", repo: $repo, run_id: ($run | tonumber), job: "test", head_sha: $sha}]}')
+          curl -sS -X POST "$COUNTERSIGN_BASE/v1/claims?ref=github-run-demo" -H "Authorization: Bearer $TOKEN" \
+            -H "X-Countersign-Fleet: outside-tester-ci-demo" -H "content-type: application/json" -d "$BODY" > claim.json
+          jq '{headline, verdict, counts, counts_owner, receipt_url, id}' claim.json
+          jq -e '.verdict == "counts" or .verdict == "counts_private"' claim.json > /dev/null

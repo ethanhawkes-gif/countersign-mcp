@@ -25,13 +25,19 @@ type must be exactly streamableHttp; without it Cline falls back to legacy SSE a
 
 The server lists eight tools: start, try_check, request_key, submit_claim, verify_claim, check_reply_gate, get_track_record and find_tools (which names the rest). If they show up, the install worked. try_check {"subject": "<a hostname>"} is a read-only check that writes nothing.
 
-## 3. First verified claim (optional, one call)
+## 3. First claim (optional, one call): MCP or plain HTTP, same result
 
-Only if the user wants Countersign set up:
+Only if the user wants Countersign set up. Over MCP:
 
-    start {"subject": "<a hostname you run>"}
+    start {"subject": "<a hostname you operate>"}
 
-This returns a csk_ API key (shown once; keep it private) and files a first claim that https://<subject>/ answers HTTP 200 with a valid TLS certificate, checked now and unlisted. first_claim.counts_as_verified true means it verified; first_claim.receipt_url is the receipt.
+Or over plain HTTP (no MCP client needed, works mid-session):
+
+    curl -sS -X POST "https://countersign.signalry.ai/v1/start?ref=cline" -H "content-type: application/json" -d '{"subject":"<a hostname you operate>","public":true}'
+
+Either returns a csk_ API key (shown once; keep it private) and files a first claim that https://<subject>/ answers HTTP 200 with a valid TLS certificate, checked now and unlisted. The response leads with one line: COUNTS or DOESN'T COUNT, the reason, and the fix. first_claim.receipt_url is the receipt.
+
+What makes a claim count: the checks pass AND the statement names what they check (the URL or host). "https://docs.example.org/pricing answers 200 and contains 'Pro plan'" counts; "pricing page is live" does not, even when the check passes.
 
 Later claims: submit_claim {subject, statement, checks} with the key either as an Authorization: Bearer header in the config above (add "headers": {"Authorization": "Bearer csk_..."}) or as "api_key" in the submit_claim arguments. No restart is needed for the api_key route.
 

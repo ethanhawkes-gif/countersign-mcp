@@ -14,7 +14,7 @@
     "dns",
     "audit"
   ],
-  "installHint": "No key needed to connect. The start tool issues a key and a verified first claim in one call when you want one.",
+  "installHint": "No key needed to connect. The start tool issues a key and a first claim checked live in one call when you want one.",
   "connectionOptions": [
     {
       "id": "none",

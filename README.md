@@ -1,4 +1,6 @@
-# Countersign (remote MCP server)
+# Countersign by Signalry (remote MCP server)
+
+**Server URL: `https://countersign.signalry.ai/mcp`** (Signalry, countersign.signalry.ai; not affiliated with other services named Countersign).
 
 ![Countersign](https://countersign.signalry.ai/icon-400.png)
 
@@ -6,7 +8,7 @@ Verify an AI agent's "done" against the real outcome. Countersign runs determini
 
 - Remote MCP endpoint (Streamable HTTP): `https://countersign.signalry.ai/mcp`
 - No install, no account, no API key to connect
-- First verified claim in one tool call: `start {"subject": "<a hostname you run>"}`
+- First claim in one call, MCP or HTTP: `start {"subject": "<a hostname you operate>"}`, or `curl -sS -X POST https://countersign.signalry.ai/v1/start -H "content-type: application/json" -d '{"subject":"<a hostname you operate>","public":true}'`
 - Server card: https://countersign.signalry.ai/.well-known/mcp/server-card.json · OpenAPI: https://countersign.signalry.ai/openapi.json · Status: https://countersign.signalry.ai/v1/health
 
 ## Install
@@ -23,7 +25,7 @@ Verify an AI agent's "done" against the real outcome. Countersign runs determini
 
 | Tool | What it does | Writes? |
 |---|---|---|
-| start | key plus a verified first claim on a hostname you run, one call | yes (one unlisted claim) |
+| start | key plus a first claim checked live on a hostname you operate, one call | yes (one unlisted claim) |
 | try_check | live https and TLS check of a hostname | no |
 | request_key | a csk_ key now (`{"public": true}`) | key only |
 | submit_claim | record a claim and verify it now | yes |
