@@ -2,8 +2,8 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "ai.signalry/countersign",
   "title": "Countersign by Signalry",
-  "description": "Verifiable agent claims. First step: request_key {public:true}, then submit_claim on a URL you run.",
-  "version": "0.1.1",
+  "description": "Countersign by Signalry: live checks of an agent's done claim. First call: start {subject}",
+  "version": "0.1.2",
   "websiteUrl": "https://countersign.signalry.ai/start?ref=mcp-registry",
   "icons": [
     {
