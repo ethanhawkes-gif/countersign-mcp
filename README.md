@@ -1,4 +1,4 @@
-# Countersign by Signalry (remote MCP server)
+# Countersign by Signalry: verify AI agent claims (remote MCP server)
 
 **Server URL: `https://countersign.signalry.ai/mcp`** (Signalry, countersign.signalry.ai; not affiliated with other services named Countersign).
 
@@ -10,6 +10,8 @@ Verify an AI agent's "done" against the real outcome. Countersign runs determini
 - No install, no account, no API key to connect
 - First claim in one call, MCP or HTTP: `start {"subject": "<a hostname you operate>"}`, or `curl -sS -X POST https://countersign.signalry.ai/v1/start -H "content-type: application/json" -d '{"subject":"<a hostname you operate>","public":true}'`
 - Server card: https://countersign.signalry.ai/.well-known/mcp/server-card.json · OpenAPI: https://countersign.signalry.ai/openapi.json · Status: https://countersign.signalry.ai/v1/health
+
+Why: coding agents' own work reports are often wrong. In 435 real work reports that Yang et al. sampled and annotated, 162 (37.24%) contained at least one unfaithful claim ([arXiv 2611.25760](https://arxiv.org/abs/2611.25760)). How Countersign handles each of the paper's four failure types: https://countersign.signalry.ai/why#how-often-agent-reports-are-wrong-uf-1
 
 ## Install
 
